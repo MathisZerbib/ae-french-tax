@@ -58,11 +58,14 @@ export default function CalculateurTaxesAEPro() {
   );
 
   const handleCalculate = useCallback(() => {
+    let monthlyRevenue = revenue.value;
+    if (revenue.type === "annual") {
+      monthlyRevenue = revenue.value / 12;
+    }
     const calculatedResults = calculateTotalTaxesAndCharges(
-      revenue.value,
+      monthlyRevenue,
       activityType,
-      familyQuotient,
-      revenue.type === "monthly"
+      familyQuotient
     );
     setResults(calculatedResults);
   }, [revenue, activityType, familyQuotient]);
@@ -81,13 +84,13 @@ export default function CalculateurTaxesAEPro() {
   ]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white flex flex-col justify-between">
       <header className="bg-white shadow-md py-6">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold text-blue-600">
+          <h1 className="text-3xl font-bold text-blue-600 text-center">
             Calculateur de Taxes Auto-Entrepreneur Pro
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 mt-2 text-center">
             Estimez vos impôts et charges en quelques clics
           </p>
         </div>
@@ -117,6 +120,10 @@ export default function CalculateurTaxesAEPro() {
                       setRevenue((prev) => ({
                         ...prev,
                         type: value as "monthly" | "annual",
+                        value:
+                          value === "monthly"
+                            ? prev.value / 12
+                            : prev.value * 12,
                       }))
                     }
                   >
@@ -132,7 +139,11 @@ export default function CalculateurTaxesAEPro() {
                         id="revenue"
                         type="number"
                         placeholder="Entrez votre CA mensuel"
-                        value={revenue.value || ""}
+                        value={
+                          revenue.type === "monthly"
+                            ? revenue.value
+                            : revenue.value / 12
+                        }
                         onChange={(e) =>
                           setRevenue({
                             value: Number(e.target.value),
@@ -150,7 +161,11 @@ export default function CalculateurTaxesAEPro() {
                         id="revenue"
                         type="number"
                         placeholder="Entrez votre CA annuel"
-                        value={revenue.value || ""}
+                        value={
+                          revenue.type === "annual"
+                            ? revenue.value
+                            : revenue.value * 12
+                        }
                         onChange={(e) =>
                           setRevenue({
                             value: Number(e.target.value),
@@ -301,10 +316,9 @@ export default function CalculateurTaxesAEPro() {
                       <p className="font-medium">
                         Revenu imposable{" "}
                         {revenue.type === "monthly" ? "mensuel" : "annuel"} :{" "}
-                        {(revenue.type === "monthly"
-                          ? results.taxableIncome / 12
-                          : results.taxableIncome
-                        ).toFixed(2)}{" "}
+                        {revenue.type === "monthly"
+                          ? (results.taxableIncome / 12).toFixed(2)
+                          : results.taxableIncome.toFixed(2)}{" "}
                         €
                       </p>
                     </motion.div>
@@ -312,10 +326,9 @@ export default function CalculateurTaxesAEPro() {
                       <p className="font-medium">
                         Impôt sur le revenu{" "}
                         {revenue.type === "monthly" ? "mensuel" : "annuel"} :{" "}
-                        {(revenue.type === "monthly"
-                          ? results.incomeTax / 12
-                          : results.incomeTax
-                        ).toFixed(2)}{" "}
+                        {revenue.type === "monthly"
+                          ? (results.incomeTax / 12).toFixed(2)
+                          : results.incomeTax.toFixed(2)}{" "}
                         €
                       </p>
                     </motion.div>
@@ -326,10 +339,9 @@ export default function CalculateurTaxesAEPro() {
                           ? "mensuelles"
                           : "annuelles"}{" "}
                         :{" "}
-                        {(revenue.type === "monthly"
-                          ? results.socialContributions / 12
-                          : results.socialContributions
-                        ).toFixed(2)}{" "}
+                        {revenue.type === "monthly"
+                          ? (results.socialContributions / 12).toFixed(2)
+                          : results.socialContributions.toFixed(2)}{" "}
                         €
                       </p>
                     </motion.div>
@@ -340,10 +352,9 @@ export default function CalculateurTaxesAEPro() {
                           ? "mensuelles"
                           : "annuelles"}{" "}
                         :{" "}
-                        {(revenue.type === "monthly"
-                          ? results.otherCharges / 12
-                          : results.otherCharges
-                        ).toFixed(2)}{" "}
+                        {revenue.type === "monthly"
+                          ? (results.otherCharges / 12).toFixed(2)
+                          : results.otherCharges.toFixed(2)}{" "}
                         €
                       </p>
                     </motion.div>
@@ -353,10 +364,9 @@ export default function CalculateurTaxesAEPro() {
                     >
                       Total {revenue.type === "monthly" ? "mensuel" : "annuel"}{" "}
                       des impôts et charges :{" "}
-                      {(revenue.type === "monthly"
-                        ? results.totalMonthly
-                        : results.totalAnnual
-                      ).toFixed(2)}{" "}
+                      {revenue.type === "monthly"
+                        ? results.totalMonthly.toFixed(2)
+                        : results.totalAnnual.toFixed(2)}{" "}
                       €
                     </motion.div>
                     <motion.div
@@ -366,10 +376,9 @@ export default function CalculateurTaxesAEPro() {
                       Revenu net{" "}
                       {revenue.type === "monthly" ? "mensuel" : "annuel"} après
                       impôts et charges :{" "}
-                      {(revenue.type === "monthly"
-                        ? results.totalAfterTaxMonthly
-                        : results.totalAfterTaxAnnual
-                      ).toFixed(2)}{" "}
+                      {revenue.type === "monthly"
+                        ? results.totalAfterTaxMonthly.toFixed(2)
+                        : results.totalAfterTaxAnnual.toFixed(2)}{" "}
                       €
                     </motion.div>
                   </CardContent>

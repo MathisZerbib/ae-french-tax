@@ -72,11 +72,14 @@ export const calculateOtherCharges = (revenue: number, activityType: string): nu
   return cfp + tfcc + cfe;
 };
 
+export const calculateMonthly = (monthlyRevenue: number): number => {
+  return monthlyRevenue * 12;
+};
+
 export const calculateTotalTaxesAndCharges = (
-  revenue: number,
+  monthlyRevenue: number,
   activityType: string,
-  familyQuotient: number,
-  isMonthly: boolean
+  familyQuotient: number
 ): {
   annualRevenue: number;
   monthlyRevenue: number;
@@ -89,8 +92,8 @@ export const calculateTotalTaxesAndCharges = (
   totalAfterTaxAnnual: number;
   totalAfterTaxMonthly: number;
 } => {
-  const annualRevenue = isMonthly ? revenue * 12 : revenue;
-  const monthlyRevenue = isMonthly ? revenue : revenue / 12;
+  const annualRevenue = calculateMonthly(monthlyRevenue);
+
   const taxableIncome = calculateTaxableIncome(annualRevenue, activityType);
   const incomeTax = calculateIncomeTax(taxableIncome, familyQuotient);
   const socialContributions = calculateSocialContributions(annualRevenue, activityType);
@@ -133,4 +136,3 @@ export const calculateFamilyQuotient = (
 
   return parts;
 };
-
